@@ -1,0 +1,697 @@
+{
+  "name": "Slack AI Newsletter",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://openai.com/blog/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        320
+      ],
+      "id": "9f1433b9-a521-40d1-b153-3ca10e9ebf68",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C0A9DHZDB46",
+          "mode": "list",
+          "cachedResultName": "slack-newsletter"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        384
+      ],
+      "id": "5f73d868-10ac-440c-aaa5-fa2b91e03232",
+      "name": "Slack Trigger",
+      "webhookId": "17141bad-38e0-478d-bc84-92e13048cdee",
+      "credentials": {
+        "slackApi": {
+          "id": "l0lZyNjcBo5tiRqt",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://deepmind.google/blog/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        480
+      ],
+      "id": "df2f30ed-6d81-4cb0-8aad-595454bd303b",
+      "name": "RSS Read1"
+    },
+    {
+      "parameters": {
+        "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        784
+      ],
+      "id": "b6848cbf-ed7b-414f-8b22-f3d0db434474",
+      "name": "RSS Read2"
+    },
+    {
+      "parameters": {
+        "url": "https://venturebeat.com/category/ai/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        624
+      ],
+      "id": "8b918a65-de8b-420b-aaa4-f77adeb987ed",
+      "name": "RSS Read3"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -368,
+        480
+      ],
+      "id": "dba2e006-862b-4cd6-b463-4bb7bf0914f8",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e09c0a4b-fc29-4c1c-a08a-3173aeda0c2a",
+              "name": "Title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "d6b3f36c-a4e0-45d6-ac55-8c1e7438ec8f",
+              "name": "Link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "ab6cf2b8-4da7-4c8d-9359-7157e517b366",
+              "name": "Summary",
+              "value": "={{ $json.contentSnippet }}",
+              "type": "string"
+            },
+            {
+              "id": "b14323dc-4d9b-4ee7-8325-0856e5cbd6c6",
+              "name": "Publish Date",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        496
+      ],
+      "id": "e7701986-d159-4226-969c-1a777c5878e9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f8deee2d-754b-4558-af5e-9d665f8d05e0",
+              "leftValue": "={{ $json.Summary }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "5ed44925-7c59-41d6-b2ce-2c09f9b4e571",
+              "leftValue": "={{ new Date($json.published_at) > new Date(Date.now() - 24*60*60*1000) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -128,
+        688
+      ],
+      "id": "9e39735b-292a-42a1-98de-d7eead5eb2c5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "Title",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        192,
+        672
+      ],
+      "id": "b8178f45-2334-47c4-8d63-b55671632bf4",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "jsCode": "const keywords = [\n  \"AI\", \"Artificial Intelligence\", \"LLM\", \"OpenAI\",\n  \"ChatGPT\", \"Gemini\", \"Claude\", \"Anthropic\",\n  \"DeepMind\", \"Machine Learning\", \"Generative\"\n];\n\nreturn items.map(item => {\n  const text = (item.json.title + \" \" + item.json.summary).toLowerCase();\n  let score = 0;\n\n  keywords.forEach(k => {\n    if (text.includes(k.toLowerCase())) score += 1;\n  });\n\n  item.json.relevance_score = score;\n  return item;\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        672
+      ],
+      "id": "9b4dd41c-62c8-42a6-82b0-2fa63ceac4d8",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "relevance_score"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        624,
+        672
+      ],
+      "id": "f6c21625-7f36-4be9-a6e4-01e906f7d7a0",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        832,
+        672
+      ],
+      "id": "9481f438-66b5-4633-9464-a3f4a83c87d5",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "o_data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        672
+      ],
+      "id": "16db9a9d-e9b6-488b-a072-24993fa4a82c",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dfa44c2d-2231-456f-9e3b-1e611b96c7f8",
+              "name": "Prompt",
+              "value": "=You are an AI analyst creating a daily AI newsletter.\n\nFrom the following news items, create a concise, professional newsletter:\n- Title\n- 2–3 line summary per news\n- Why it matters (1 line)\n- Keep tone clear and executive-friendly\n\nNews items:\n{{ JSON.stringify($json, null, 2) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        672
+      ],
+      "id": "0a50bfdc-283b-4650-9e24-a0ea0a8e3d41",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "={{ $json.Prompt }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1456,
+        672
+      ],
+      "id": "acf40e0f-1ea9-4112-88ab-a14de20185f1",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "OkQsJabwBZQ5liXw",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e412223-1e3d-4f58-8e00-359c33aec6b7",
+              "name": "newsletter_title",
+              "value": "Daily AI News Digest",
+              "type": "string"
+            },
+            {
+              "id": "ade04cf5-4fcc-4e29-85f6-782f6835d396",
+              "name": "newsletter_body",
+              "value": "={{ $json.output[0].content[0].text }}",
+              "type": "string"
+            },
+            {
+              "id": "537f01a2-a84c-4d82-8782-2eea59e0abb9",
+              "name": "generated_at",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1808,
+        672
+      ],
+      "id": "0b44b732-8d7f-4d61-9ee3-f626219265dc",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "722f10ef-87c0-480c-b282-ef6ac9791dcc",
+              "name": "email_subject",
+              "value": "={{ $json.newsletter_title }} – {{ new Date($json.generated_at).toDateString() }}",
+              "type": "string"
+            },
+            {
+              "id": "b6e8a756-e820-46c9-9be1-f3de716730b1",
+              "name": "email_body_html",
+              "value": "=<h2>{{ $json.newsletter_title }}</h2> <p><b>Date:</b> {{ new Date($json.generated_at).toDateString() }}</p>  <pre style=\"font-family: Arial, sans-serif; white-space: pre-wrap;\"> {{ $json.newsletter_body }} </pre>  <hr/> <p style=\"font-size:12px;color:gray;\"> 🤖 This newsletter was automatically generated using n8n & AI </p>",
+              "type": "string"
+            },
+            {
+              "id": "718e7480-608c-4ed1-b44a-7ba5a21f2fdc",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2160,
+        720
+      ],
+      "id": "7a3dd189-0958-4d57-baa2-f27c1b06d73f",
+      "name": "Edit Fields3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "fromEmail": "nagakarthikv.ai@gmail.com",
+        "toEmail": "kavyarnew2024@gmail.com",
+        "subject": "={{ $json.email_subject }}",
+        "html": "={{ $json.email_body_html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2384,
+        656
+      ],
+      "id": "6dacc984-e2bd-4acf-b1c6-50a5a0de627c",
+      "name": "Send email",
+      "webhookId": "13be20bd-709d-4668-9c22-485bded03eff",
+      "credentials": {
+        "smtp": {
+          "id": "s4XKRKk2f17uKPrg",
+          "name": "SMTP account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0A8W34G3G8",
+          "mode": "list",
+          "cachedResultName": "all-nagakarthikvai"
+        },
+        "text": "=🧠 *Daily AI Newsletter*\n\n{{ $json.newsletter }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2160,
+        1072
+      ],
+      "id": "5f951f85-cd02-4a05-b8e4-c66a1a930073",
+      "name": "Send a message1",
+      "webhookId": "b96cd6ed-0311-400e-9072-31f81f868369",
+      "credentials": {
+        "slackApi": {
+          "id": "i8nz6AQeWl96CP7o",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => ({\n  json: {\n    newsletter: item.json.output?.[0]?.content?.[0]?.text || \"No newsletter generated today.\"\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        1024
+      ],
+      "id": "321ae253-50d0-4c6a-83ed-1a106f41d9f5",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RSS Read3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "RSS Read2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "80895663-0372-4ad2-b03b-a59000a7f37d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bbe6cd06ccc0c34f6c669b9d0f0d6b8335ebe3fed27c0315705f0c4aa0fbc63e"
+  },
+  "id": "3hs7m_HNUUWfTgygdU_qR",
+  "tags": []
+}
